@@ -1,0 +1,163 @@
+//
+//  ViewController.swift
+//  ToDoListDSApp
+//
+//  Created by Роман Цуприк on 29.07.23.
+//
+
+import UIKit
+import SnapKit
+
+class ViewController: UIViewController {
+    
+    //MARK: - Properties
+    let identifire = "MyCell"
+    var tasksArray = ["Buy milk & bananas"]
+    private lazy var toDoListLabel: UILabel = {
+        let label = UILabel()
+        label.text = "MY TO DO LIST"
+        label.textColor = .systemBlue
+        label.font = UIFont(name:"HelveticaNeue-Bold", size: 30)
+        label.textAlignment = .center
+        return label
+    }()
+    private lazy var newTaskLabel: UILabel = {
+        let label = UILabel()
+        label.text = "NEW TASK"
+        label.textColor = .black
+        label.font = UIFont(name:"HelveticaNeue-Bold", size: 20)
+        label.textAlignment = .center
+        return label
+    }()
+    private lazy var newTaskField: UITextField = {
+        let textField = UITextField()
+        textField.backgroundColor = .white
+        textField.placeholder = "Enter name of the task"
+        return textField
+    }()
+    private lazy var addTask: UIButton = {
+        let button = UIButton()
+        button.layer.cornerRadius = 5
+        button.backgroundColor = .systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.setTitle("Add", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        button.addTarget(self, action: #selector(addTaskButtonAction), for: .touchUpInside)
+        button.layer.masksToBounds = true
+        return button
+    }()
+    private lazy var allTasksLabel: UILabel = {
+        let label = UILabel()
+        label.text = "ALL TASKS"
+        label.textColor = .black
+        label.font = UIFont(name:"HelveticaNeue-Bold", size: 20)
+        label.textAlignment = .center
+        return label
+    }()
+    private lazy var allTasksTable: UITableView = {
+        let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: identifire)
+        tableView.separatorColor = UIColor.orange
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
+    }()
+
+    // MARK: - Life cicle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.view.backgroundColor = .orange
+        self.view.addSubviews([self.toDoListLabel, self.newTaskLabel, self.newTaskField, self.addTask, self.allTasksLabel, self.allTasksTable])
+        self.setupConstraints()
+    }
+    
+    // MARK: - Methods
+    private func setupConstraints() {
+        self.toDoListLabel.snp.updateConstraints { (make) in
+            make.top.equalToSuperview().inset(40)
+            make.centerX.equalToSuperview()
+            make.left.right.equalToSuperview().inset(30)
+            make.height.equalTo(30)
+        }
+        self.newTaskLabel.snp.updateConstraints { (make) in
+            make.top.equalTo(self.toDoListLabel.snp.bottom).offset(10)
+            make.centerX.equalToSuperview()
+            make.left.right.equalToSuperview().inset(30)
+            make.height.equalTo(30)
+        }
+        self.newTaskField.snp.updateConstraints { (make) in
+            make.top.equalTo(self.newTaskLabel.snp.bottom)
+            make.centerX.equalToSuperview()
+            make.left.right.equalToSuperview().inset(30)
+            make.height.equalTo(50)
+        }
+        self.addTask.snp.updateConstraints { (make) in
+            make.top.equalTo(self.newTaskField.snp.bottom).offset(10)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(100)
+            make.height.equalTo(30)
+        }
+        self.allTasksLabel.snp.updateConstraints { (make) in
+            make.top.equalTo(self.addTask.snp.bottom).offset(20)
+            make.centerX.equalToSuperview()
+            make.left.right.equalToSuperview().inset(30)
+            make.height.equalTo(30)
+        }
+        self.allTasksTable.snp.updateConstraints { (make) in
+            make.top.equalTo(self.allTasksLabel.snp.bottom)
+            make.centerX.equalToSuperview()
+            make.left.right.bottom.equalToSuperview().inset(30)
+        }
+    }
+    
+    // MARK: - Actions
+    @objc private func addTaskButtonAction() {
+        guard let text = self.newTaskField.text, text != "" else { return }
+        self.tasksArray.append(text)
+        self.newTaskField.text = ""
+        self.allTasksTable.reloadData()
+    }
+}
+
+// MARK: - UITableViewDelegate, UITableViewDataSource
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.tasksArray.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: identifire, for: indexPath)
+        cell.textLabel?.text = tasksArray[indexPath.row]
+        cell.separatorInset = UIEdgeInsets.zero
+        cell.layoutMargins = UIEdgeInsets.zero
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    }
+    
+    func tableView(_ tableView: UITableView,
+                   trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let remove = UIContextualAction(
+            style: .destructive,
+            title: "") { [weak self] (action, view, completionHandler) in
+            guard let self = self else { return }
+            self.allTasksTable.performBatchUpdates({
+                self.tasksArray.remove(at: indexPath.row)
+                self.allTasksTable.deleteRows(at: [indexPath], with: .automatic)
+            }, completion: { (isSuccess) in
+                completionHandler(isSuccess)
+            })
+        }
+        remove.backgroundColor = .orange
+        return UISwipeActionsConfiguration(actions: [remove])
+    }
+}
+
+
