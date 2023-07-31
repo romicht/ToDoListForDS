@@ -54,7 +54,7 @@
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
-                <outlet property="complitedMarkView" destination="vAb-Ih-tGL" id="EpE-cO-ZCb"/>
+                <outlet property="completedMarkView" destination="vAb-Ih-tGL" id="EpE-cO-ZCb"/>
                 <outlet property="conteinerView" destination="1Uq-Vn-hMI" id="qf6-TQ-IYa"/>
                 <outlet property="nameTaskLabel" destination="fg0-8a-tUP" id="C8B-CM-uw8"/>
             </connections>

@@ -12,9 +12,9 @@ class AllTasksTableViewCell: UITableViewCell {
     //MARK: - Properties
     @IBOutlet weak var conteinerView: UIView! 
     @IBOutlet weak var nameTaskLabel: UILabel!
-    @IBOutlet weak var complitedMarkView: UIView! {
+    @IBOutlet weak var completedMarkView: UIView! {
         didSet {
-            complitedMarkView.isHidden = true
+            completedMarkView.isHidden = true
         }
     }
     static let identifire = "AllTasksTableViewCell"
@@ -32,21 +32,22 @@ class AllTasksTableViewCell: UITableViewCell {
         return UINib(nibName: "AllTasksTableViewCell", bundle: nil)
     }
     
-    func configure(with model: Model?) {
+    //MARK: - Methods
+    func configure(with model: TaskModel?) {
         guard let model = model else { return }
         self.nameTaskLabel.text = model.taskName
-        if model.isComplited == true {
-            self.complitedMarkView.isHidden = false
+        if model.isCompleted == true {
+            self.completedMarkView.isHidden = false
         } else {
-            complitedMarkView.isHidden = true
+            completedMarkView.isHidden = true
         }
     }
     
     func complitedTask() {
-        if complitedMarkView.isHidden == true {
-            complitedMarkView.isHidden = false
+        if completedMarkView.isHidden == true {
+            completedMarkView.isHidden = false
         } else {
-            complitedMarkView.isHidden = true
+            completedMarkView.isHidden = true
         }
     }
 }

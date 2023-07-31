@@ -8,10 +8,10 @@
 import UIKit
 import SnapKit
 
-class ViewController: UIViewController {
+class ToDoListViewController: UIViewController {
     
     //MARK: - Properties
-    var tasksArray = [Model]()
+    var tasksArray = [TaskModel]()
     private lazy var toDoListLabel: UILabel = {
         let label = UILabel()
         label.text = "MY TO DO LIST"
@@ -66,16 +66,19 @@ class ViewController: UIViewController {
         return tableView
     }()
 
-    // MARK: - Life cicle
+    // MARK: - Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = .orange
-        self.view.addSubviews([self.toDoListLabel, self.newTaskLabel, self.newTaskField, self.addTask, self.allTasksLabel, self.allTasksTableView])
-        self.setupConstraints()
+        setupAppearance()
+        setupConstraints()
     }
     
     // MARK: - Methods
+    private func setupAppearance() {
+        self.view.backgroundColor = .orange
+        self.view.addSubviews([self.toDoListLabel, self.newTaskLabel, self.newTaskField, self.addTask, self.allTasksLabel, self.allTasksTableView])
+    }
     private func setupConstraints() {
         self.toDoListLabel.snp.updateConstraints { (make) in
             make.top.equalToSuperview().inset(40)
@@ -117,15 +120,15 @@ class ViewController: UIViewController {
     // MARK: - Actions
     @objc private func addTaskButtonAction() {
         guard let text = self.newTaskField.text, text != "" else { return }
-        let model = Model(taskName: text)
+        let model = TaskModel(taskName: text)
         self.tasksArray.append(model)
         self.newTaskField.text = ""
         self.allTasksTableView.reloadData()
     }
 }
 
-// MARK: - UITableViewDelegate, UITableViewDataSource
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    // MARK: - UITableViewDelegate, UITableViewDataSource
+extension ToDoListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.tasksArray.count
     }
@@ -136,11 +139,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         view.backgroundColor = UIColor.clear
         cell.selectedBackgroundView = view
         cell.configure(with: tasksArray[indexPath.row])
-
-//        let cell = tableView.dequeueReusableCell(withIdentifier: identifire, for: indexPath)
-//        cell.textLabel?.text = tasksArray[indexPath.row]
-//        cell.separatorInset = UIEdgeInsets.zero
-//        cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
     
@@ -149,10 +147,10 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if self.tasksArray[indexPath.row].isComplited == true {
-            self.tasksArray[indexPath.row].isComplited = false
+        if self.tasksArray[indexPath.row].isCompleted == true {
+            self.tasksArray[indexPath.row].isCompleted = false
             } else {
-                self.tasksArray[indexPath.row].isComplited = true
+                self.tasksArray[indexPath.row].isCompleted = true
             }
         self.allTasksTableView.reloadData()
     }
@@ -174,5 +172,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         return UISwipeActionsConfiguration(actions: [remove])
     }
 }
+
 
 
