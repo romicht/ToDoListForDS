@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Foundation
-
 struct TaskModel {
     var taskName: String
     var isCompleted: Bool = false
