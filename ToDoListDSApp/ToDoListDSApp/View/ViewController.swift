@@ -11,8 +11,7 @@ import SnapKit
 class ViewController: UIViewController {
     
     //MARK: - Properties
-    let identifire = "MyCell"
-    var tasksArray = ["Buy milk & bananas"]
+    var tasksArray = [Model]()
     private lazy var toDoListLabel: UILabel = {
         let label = UILabel()
         label.text = "MY TO DO LIST"
@@ -54,11 +53,14 @@ class ViewController: UIViewController {
         label.textAlignment = .center
         return label
     }()
-    private lazy var allTasksTable: UITableView = {
+    private lazy var allTasksTableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: identifire)
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: AllTasksTableViewCell.identifire)
+        tableView.register(AllTasksTableViewCell.nib().self,
+                           forCellReuseIdentifier: AllTasksTableViewCell.identifire)
+        tableView.separatorStyle = .none
         tableView.separatorColor = UIColor.orange
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
@@ -69,7 +71,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         self.view.backgroundColor = .orange
-        self.view.addSubviews([self.toDoListLabel, self.newTaskLabel, self.newTaskField, self.addTask, self.allTasksLabel, self.allTasksTable])
+        self.view.addSubviews([self.toDoListLabel, self.newTaskLabel, self.newTaskField, self.addTask, self.allTasksLabel, self.allTasksTableView])
         self.setupConstraints()
     }
     
@@ -105,7 +107,7 @@ class ViewController: UIViewController {
             make.left.right.equalToSuperview().inset(30)
             make.height.equalTo(30)
         }
-        self.allTasksTable.snp.updateConstraints { (make) in
+        self.allTasksTableView.snp.updateConstraints { (make) in
             make.top.equalTo(self.allTasksLabel.snp.bottom)
             make.centerX.equalToSuperview()
             make.left.right.bottom.equalToSuperview().inset(30)
@@ -115,9 +117,10 @@ class ViewController: UIViewController {
     // MARK: - Actions
     @objc private func addTaskButtonAction() {
         guard let text = self.newTaskField.text, text != "" else { return }
-        self.tasksArray.append(text)
+        let model = Model(taskName: text)
+        self.tasksArray.append(model)
         self.newTaskField.text = ""
-        self.allTasksTable.reloadData()
+        self.allTasksTableView.reloadData()
     }
 }
 
@@ -128,10 +131,16 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: identifire, for: indexPath)
-        cell.textLabel?.text = tasksArray[indexPath.row]
-        cell.separatorInset = UIEdgeInsets.zero
-        cell.layoutMargins = UIEdgeInsets.zero
+        let cell = allTasksTableView.dequeueReusableCell(withIdentifier: AllTasksTableViewCell.identifire, for: indexPath) as! AllTasksTableViewCell
+        let view = UIView()
+        view.backgroundColor = UIColor.clear
+        cell.selectedBackgroundView = view
+        cell.configure(with: tasksArray[indexPath.row])
+
+//        let cell = tableView.dequeueReusableCell(withIdentifier: identifire, for: indexPath)
+//        cell.textLabel?.text = tasksArray[indexPath.row]
+//        cell.separatorInset = UIEdgeInsets.zero
+//        cell.layoutMargins = UIEdgeInsets.zero
         return cell
     }
     
@@ -140,6 +149,12 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if self.tasksArray[indexPath.row].isComplited == true {
+            self.tasksArray[indexPath.row].isComplited = false
+            } else {
+                self.tasksArray[indexPath.row].isComplited = true
+            }
+        self.allTasksTableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView,
@@ -148,9 +163,9 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             style: .destructive,
             title: "") { [weak self] (action, view, completionHandler) in
             guard let self = self else { return }
-            self.allTasksTable.performBatchUpdates({
+            self.allTasksTableView.performBatchUpdates({
                 self.tasksArray.remove(at: indexPath.row)
-                self.allTasksTable.deleteRows(at: [indexPath], with: .automatic)
+                self.allTasksTableView.deleteRows(at: [indexPath], with: .automatic)
             }, completion: { (isSuccess) in
                 completionHandler(isSuccess)
             })
